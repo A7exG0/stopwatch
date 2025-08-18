@@ -24,23 +24,18 @@ today_date = now.strftime("%d/%m/%Y")
 
 file_name = script_dir / f"sessions.json" #TODO rename json file
 
-#Check existing file for the first starting of stopwatch
+# Check existing file for the first starting of stopwatch
 if not Path.exists(file_name): 
     data = {
+    "is_working": "False",
     "total_time": "0:0:0",
     "num_days": "1",
     "days_data": [
         {
         "date": "-",
         "sum_time": "0:0:0",
-        "num_sessions": "1",
-        "sessions_data": [
-            {
-            "start": "-",
-            "end": "-",
-            "duration": "-"
-            }
-        ]
+        "num_sessions": "0",
+        "sessions_data": []
         }
     ]
     }
@@ -50,27 +45,24 @@ if not Path.exists(file_name):
 
 with open(file_name, 'r', encoding="utf-8") as f: 
     data = json.load(f)
-    
+    print(data["is_working"])
+    data["is_working"] = "True" if data["is_working"] == "False" else "False"
+    print(data["is_working"])
     day_data = data["days_data"][-1]
     
     if day_data["date"] == "-": #TODO somethin to do with date
         day_data["date"] = today_date
     
-    session_data = day_data["sessions_data"][-1]
-    
-    if session_data["end"] != "-":
-        day_data["num_sessions"] = int(day_data["num_sessions"]) + 1
+    if data["is_working"] == "True":
         day_data["sessions_data"].append({
-            "start": "-",
+            "start": cur_time,
             "end": "-",
             "duration": "-"
             })
         session_data = day_data["sessions_data"][-1]
-    
-    if session_data["start"] == "-": 
-        session_data["start"] = cur_time
         notify("⏱ Stopwatch on!")
     else:
+        session_data = day_data["sessions_data"][-1]
         session_data["end"] = cur_time 
         # get start time
         start_time = datetime.strptime(session_data["start"], "%H:%M:%S")
@@ -79,14 +71,19 @@ with open(file_name, 'r', encoding="utf-8") as f:
         session_data["duration"] = f"{hours}:{minutes}:{seconds}"
         
         sum_time = datetime.strptime(day_data["sum_time"], "%H:%M:%S")
+        total_time = datetime.strptime(data["total_time"], "%H:%M:%S")
         sum_time += delta 
+        total_time += delta
         sum_time_str = datetime.strftime(sum_time, "%H:%M:%S")
+        total_time_str = datetime.strftime(total_time, "%H:%M:%S")
         day_data["sum_time"] = sum_time_str
+        data["total_time"] = total_time_str
         notify("⏱ Stopwatch off!")
-        
     
+    day_data["num_sessions"] = len(day_data["sessions_data"])
     day_data["sessions_data"][-1] = session_data
     data["days_data"][-1] = day_data  
+    
         
 
 with open(file_name, 'w', encoding="utf-8") as f: 

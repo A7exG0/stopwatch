@@ -62,14 +62,17 @@ def convert_to_seconds(hours, minutes, seconds):
 
 # Get the file path for saving and current date, time 
 script_dir = Path(__file__).parent.resolve()
+path = script_dir / f"path.txt" # path.txt contain path to data
+with open(path, 'r', encoding="utf-8") as f: 
+    data_path = Path(f.read())
+ 
 today = datetime.today()
 now = datetime.now()
 cur_time = now.strftime("%H:%M:%S")
 today_date = now.strftime("%d/%m/%Y")
-file_name = script_dir / f"sessions.json" 
 
 # Check existing file for the first starting of stopwatch
-if not Path.exists(file_name): 
+if not Path.exists(data_path): 
     data = {
     "is_working": "False",
     "total_time": "0:0:0",
@@ -83,12 +86,12 @@ if not Path.exists(file_name):
         }
     ]
     }
-    with open(file_name, 'w', encoding="utf-8") as f: 
+    with open(data_path, 'w', encoding="utf-8") as f: 
         json.dump(data, f)
 
 
 # Get data from file 
-with open(file_name, 'r', encoding="utf-8") as f: 
+with open(data_path, 'r', encoding="utf-8") as f: 
     data = json.load(f)
     
     # can check duration only when stopwatch is working 
@@ -173,7 +176,7 @@ with open(file_name, 'r', encoding="utf-8") as f:
 
 
 # save changes
-with open(file_name, 'w', encoding="utf-8") as f: 
+with open(data_path, 'w', encoding="utf-8") as f: 
     json.dump(data, f)
 
 

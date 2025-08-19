@@ -3,8 +3,8 @@ from datetime import datetime
 from pathlib import Path 
 import json
 import subprocess
-# from plyer import notification
-
+from plyer import notification
+import sys
 
 def stopwatch_off(data, end_time_str):
     '''Function for saving result of session'''
@@ -37,9 +37,13 @@ def stopwatch_off(data, end_time_str):
     # save session changes in data  
     data["days_data"][-1]["sessions_data"][-1] = session_data # last day, last session
     
-    notify(f"⏱ Stopwatch off! Session:{session_data['duration']}\n Day:{day_data['sum_time']}")
-    
-    
+    # notify(f"⏱ Stopwatch off! Session:{session_data['duration']}\n Day:{day_data['sum_time']}")
+    notification.notify(
+    title="⏱ Stopwatch",
+    message=f"Stopwatch off!\nSession:{session_data['duration']}\n Day:{day_data['sum_time']}",
+    timeout=5  # seconds
+    )
+     
 def notify(text):
     '''Script for notifications linux'''
     subprocess.run(["notify-send", text])
@@ -62,7 +66,6 @@ today = datetime.today()
 now = datetime.now()
 cur_time = now.strftime("%H:%M:%S")
 today_date = now.strftime("%d/%m/%Y")
-
 file_name = script_dir / f"sessions.json" 
 
 # Check existing file for the first starting of stopwatch
@@ -87,6 +90,30 @@ if not Path.exists(file_name):
 # Get data from file 
 with open(file_name, 'r', encoding="utf-8") as f: 
     data = json.load(f)
+    
+    # can check duration only when stopwatch is working 
+    if len(sys.argv) > 1 and sys.argv[1] == "duration":
+        if data["is_working"] == "True":
+            last_session = data["days_data"][-1]["sessions_data"][-1] 
+            
+            start_time = datetime.strptime(last_session["start"], "%H:%M:%S")
+            end_time = datetime.strptime(cur_time, "%H:%M:%S")
+            # find difference
+            delta = end_time - start_time
+            hours, minutes, seconds = convert_from_seconds(delta.seconds)
+            
+            notification.notify(
+            title="⏱ Stopwatch",
+            message=f"Duration: {hours:02}:{minutes:02}:{seconds:02}",
+            timeout=5  # seconds
+            )
+        else:
+            notification.notify(
+            title="⏱ Stopwatch",
+            message=f"Stopwathc isn't working",
+            timeout=5  # seconds
+            )
+        sys.exit()
     
     # Take data of the last day 
     day_data = data["days_data"][-1]
@@ -133,7 +160,13 @@ with open(file_name, 'r', encoding="utf-8") as f:
             "duration": "-"
             })
         data["days_data"][-1]["num_sessions"] = int(data["days_data"][-1]["num_sessions"]) + 1
-        notify("⏱ Stopwatch on!")
+        # notify("⏱ Stopwatch on!")
+        notification.notify(
+        title="⏱ Stopwatch",
+        message="Stopwatch on!",
+        timeout=5  # seconds
+        )
+        
     else: # else save data
         stopwatch_off(data, end_time_str=cur_time)
         

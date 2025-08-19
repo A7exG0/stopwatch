@@ -76,13 +76,17 @@ py "C:\path\to\main.py" duration
 Screenshots of working app: 
 
 Turning on:
+---
 ![start](images/s1.png)
 
 Checking duration: 
+---
 ![duration](images/s2.png)
 
 Turning off: 
+---
 ![end](images/s3.png)
 
 Json file:
+---
 ![jsonFile](images/s4.png)

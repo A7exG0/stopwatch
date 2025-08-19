@@ -1,49 +1,51 @@
+---
+
 ### Stopwatch
 
 ---
 
-Это приложение предназначено для фиксации рабочего времени. С его помощью вы можете отслеживать, сколько времени потрачено на учебу или работу, в максимально простой и удобной форме.
+This application is designed to track working (or study) time. It helps you monitor how much time you spend on tasks in a simple and convenient way.
 
-**Принцип использования:**
+**How it works:**
 
-* При нажатии установленных горячих клавиш (к примеру `Ctrl + Shift + S`) фиксируется время начала сессии.
-* При повторном нажатии этих же клавиш фиксируется время окончания сессии. Продолжительность вычисляется как разница между временем начала и конца.
-* При нажатии (к примеру `Ctrl + Shift + D`) можно посмотреть текущую продолжительность сессии, не завершая её.
-* Все результаты сохраняются в JSON-файл.
+* When you press the assigned hotkeys (for example, `Ctrl + Shift + S`), the app records the start time of a session.
+* When you press the same hotkeys again, it records the end time of the session. The duration is calculated as the difference between start and end.
+* By pressing another hotkey (for example, `Ctrl + Shift + D`), you can check the current session duration without stopping it.
+* All results are saved into a JSON file.
 
 ---
 
-### Установка и запуск приложения:
+### Installation and Running
 
-1. Склонируйте репозиторий:
+1. Clone the repository:
 
 ```
 git clone https://github.com/A7exG0/stopwatch
 ```
 
-2. Установите зависимость:
+2. Install dependencies:
 
 ```
 pip install plyer
 ```
 
-3. В файле `path.txt` укажите путь к JSON-файлу, где будут сохраняться результаты (например: `D:\sessions.json`).
+3. In the `path.txt` file, specify the path to the JSON file where the results will be stored (e.g. `D:\sessions.json`).
 
 ---
 
-### Настройка горячих клавиш в Ubuntu:
+### Setting up Hotkeys in Ubuntu
 
-1. Перейдите в **Settings → Keyboard → View and Customize Shortcuts → Custom Shortcuts**.
-2. Добавьте свою комбинацию.
-3. В поле **Command** введите:
+1. Go to **Settings → Keyboard → View and Customize Shortcuts → Custom Shortcuts**.
+2. Add your own key combination.
+3. In the **Command** field, enter:
 
 ```
 python3 /{path_to_file}/main.py
 ```
 
-Это команда для запуска и остановки секундомера.
+This will start/stop the stopwatch.
 
-4. Чтобы добавить комбинацию для просмотра текущей продолжительности сессии, в поле **Command** введите:
+4. To add another hotkey for checking the current session duration, enter:
 
 ```
 python3 /{path_to_file}/main.py duration
@@ -51,23 +53,36 @@ python3 /{path_to_file}/main.py duration
 
 ---
 
-### Настройка горячих клавиш в Windows (через ярлык):
+### Setting up Hotkeys in Windows (via Shortcut)
 
-1. На рабочем столе **правый клик → New → Shortcut**.
-2. В поле **Type the location of the item** введите:
+1. On the Desktop: **Right click → New → Shortcut**.
+2. In the **Type the location of the item** field, enter:
 
 ```
 py "C:\path\to\main.py"
 ```
 
-(замените на полный путь к вашему `main.py`)
-3\. Назовите ярлык и нажмите **Finish**.
-4\. Чтобы назначить горячие клавиши, **правый клик на ярлык → Properties → Shortcut**.
-5\. В поле **Shortcut key** нажмите желаемую комбинацию (например, `Ctrl+Alt+M`).
-6\. Дополнительно можно создать идентичный файл, добавив аргумент duration, что позволит просматривать время сессии:
+(replace with the full path to your `main.py`)
+
+3. Name the shortcut and click **Finish**.
+4. Right-click the shortcut → **Properties → Shortcut** tab.
+5. In the **Shortcut key** field, press your desired key combination (e.g., `Ctrl+Alt+M`).
+6. Optionally, create another shortcut with the `duration` argument to check session time:
 
 ```
 py "C:\path\to\main.py" duration
 ```
 
+Screenshots of working app: 
 
+Turning on:
+![start](images/s1.png)
+
+Checking duration: 
+![duration](images/s2.png)
+
+Turning off: 
+![end](images/s3.png)
+
+Json file:
+![jsonFile](images/s4.png)

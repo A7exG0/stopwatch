@@ -4,6 +4,32 @@ from pathlib import Path
 import json
 import subprocess
 
+def stopwatch_off(data, end_time_str):
+    day_data = data["days_data"][-1]
+    session_data = day_data["sessions_data"][-1]
+    
+    session_data["end"] = end_time_str
+    # get start time
+    start_time = datetime.strptime(session_data["start"], "%H:%M:%S")
+    end_time = datetime.strptime(end_time_str, "%H:%M:%S")
+    delta = end_time - start_time
+    hours, minutes, seconds = convert(delta.seconds)
+    session_data["duration"] = f"{hours}:{minutes}:{seconds}"
+    
+    
+    sum_time = datetime.strptime(day_data["sum_time"], "%H:%M:%S")
+    sum_time += delta 
+    sum_time_str = datetime.strftime(sum_time, "%H:%M:%S")
+    day_data["sum_time"] = sum_time_str
+    
+    total_time = datetime.strptime(data["total_time"], "%H:%M:%S")
+    total_time += delta
+    total_time_str = datetime.strftime(total_time, "%H:%M:%S")
+    data["total_time"] = total_time_str
+    
+    notify("⏱ Stopwatch off!")
+    return session_data
+
 def notify(text):
     subprocess.run(["notify-send", text])
 
@@ -15,7 +41,7 @@ def convert(total_seconds):
     seconds = rest % 60
     return hours, minutes, seconds
 
-#TODO add checking of midnight
+
 script_dir = Path(__file__).parent.resolve()
 today = datetime.today()
 now = datetime.now()
@@ -28,12 +54,12 @@ file_name = script_dir / f"sessions.json" #TODO rename json file
 if not Path.exists(file_name): 
     data = {
     "is_working": "False",
-    "total_time": "0:0:0",
+    "total_time": "00:00:00",
     "num_days": "1",
     "days_data": [
         {
-        "date": "-",
-        "sum_time": "0:0:0",
+        "date": today_date,
+        "sum_time": "00:00:00",
         "num_sessions": "0",
         "sessions_data": []
         }
@@ -43,46 +69,57 @@ if not Path.exists(file_name):
         json.dump(data, f)
 
 
+
 with open(file_name, 'r', encoding="utf-8") as f: 
     data = json.load(f)
-    print(data["is_working"])
-    data["is_working"] = "True" if data["is_working"] == "False" else "False"
-    print(data["is_working"])
-    day_data = data["days_data"][-1]
     
-    if day_data["date"] == "-": #TODO somethin to do with date
-        day_data["date"] = today_date
+    day_data = data["days_data"][-1]
+       
+    if day_data["date"] != today_date and data["is_working"] == "False":
+        data["num_days"] = int(data["num_days"]) + 1
+        data["days_data"].append({
+        "date": today_date,
+        "sum_time": "00:00:00",
+        "num_sessions": "0",
+        "sessions_data": []
+        }
+        )
+        # day_data = data["days_data"][-1]
+    elif day_data["date"] != today_date and data["is_working"] == "True":
+        session_data = stopwatch_off(data, end_time_str = "00:00:00")
+        data["days_data"][-1]["sessions_data"][-1] = session_data
+        print(session_data)
+        
+        data["num_days"] = int(data["num_days"]) + 1
+        data["days_data"].append({
+        "date": today_date,
+        "sum_time": "00:00:00",
+        "num_sessions": "0",
+        "sessions_data": [{
+            "start": "00:00:00",
+            "end": "-",
+            "duration": "-"
+            }]
+        }
+        )
+    
+    data["is_working"] = "True" if data["is_working"] == "False" else "False"
     
     if data["is_working"] == "True":
-        day_data["sessions_data"].append({
+        data["days_data"][-1]["sessions_data"].append({
             "start": cur_time,
             "end": "-",
             "duration": "-"
             })
-        session_data = day_data["sessions_data"][-1]
+        # session_data = day_data["sessions_data"][-1]
         notify("⏱ Stopwatch on!")
     else:
-        session_data = day_data["sessions_data"][-1]
-        session_data["end"] = cur_time 
-        # get start time
-        start_time = datetime.strptime(session_data["start"], "%H:%M:%S")
-        delta = now - start_time
-        hours, minutes, seconds = convert(delta.seconds)
-        session_data["duration"] = f"{hours}:{minutes}:{seconds}"
-        
-        sum_time = datetime.strptime(day_data["sum_time"], "%H:%M:%S")
-        total_time = datetime.strptime(data["total_time"], "%H:%M:%S")
-        sum_time += delta 
-        total_time += delta
-        sum_time_str = datetime.strftime(sum_time, "%H:%M:%S")
-        total_time_str = datetime.strftime(total_time, "%H:%M:%S")
-        day_data["sum_time"] = sum_time_str
-        data["total_time"] = total_time_str
-        notify("⏱ Stopwatch off!")
+        session_data = stopwatch_off(data, end_time_str=cur_time)
+        data["days_data"][-1]["sessions_data"][-1] = session_data
     
-    day_data["num_sessions"] = len(day_data["sessions_data"])
-    day_data["sessions_data"][-1] = session_data
-    data["days_data"][-1] = day_data  
+    data["days_data"][-1]["num_sessions"] = len(data["days_data"][-1]["sessions_data"])
+    
+    # data["days_data"][-1] = day_data  
     
         
 

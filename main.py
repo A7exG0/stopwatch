@@ -13,7 +13,7 @@ def stopwatch_off(data, end_time_str):
     start_time = datetime.strptime(session_data["start"], "%H:%M:%S")
     end_time = datetime.strptime(end_time_str, "%H:%M:%S")
     delta = end_time - start_time
-    hours, minutes, seconds = convert(delta.seconds)
+    hours, minutes, seconds = convert_from_seconds(delta.seconds)
     session_data["duration"] = f"{hours}:{minutes}:{seconds}"
     
     
@@ -22,10 +22,10 @@ def stopwatch_off(data, end_time_str):
     sum_time_str = datetime.strftime(sum_time, "%H:%M:%S")
     day_data["sum_time"] = sum_time_str
     
-    total_time = datetime.strptime(data["total_time"], "%H:%M:%S")
-    total_time += delta
-    total_time_str = datetime.strftime(total_time, "%H:%M:%S")
-    data["total_time"] = total_time_str
+    total_time = list(map(int, data["total_time"].split(":")))
+    total_time_seconds = delta.seconds + convert_to_seconds(total_time[0], total_time[1], total_time[2])
+    hours, minutes, seconds = convert_from_seconds(total_time_seconds)
+    data["total_time"] = f"{hours}:{minutes}:{seconds}"
     
     notify("⏱ Stopwatch off!")
     return session_data
@@ -33,13 +33,17 @@ def stopwatch_off(data, end_time_str):
 def notify(text):
     subprocess.run(["notify-send", text])
 
-def convert(total_seconds):
+def convert_from_seconds(total_seconds):
     '''Convert seconds to hours, minutes, seconds'''
     hours = total_seconds // 3600 
     rest = total_seconds % 3600
     minutes = rest // 60 
     seconds = rest % 60
     return hours, minutes, seconds
+
+def convert_to_seconds(hours, minutes, seconds):
+    '''Convert from hours, minutes, seconds to seconds'''
+    return hours * 3600 + minutes *60 + seconds
 
 
 script_dir = Path(__file__).parent.resolve()
@@ -54,7 +58,7 @@ file_name = script_dir / f"sessions.json" #TODO rename json file
 if not Path.exists(file_name): 
     data = {
     "is_working": "False",
-    "total_time": "00:00:00",
+    "total_time": "0:0:0",
     "num_days": "1",
     "days_data": [
         {

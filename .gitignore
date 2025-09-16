@@ -1,4 +1,6 @@
 time 
 test.py
 sessions.json
-stopwatch.py
+__pycache__/
+update.json
+update.txt

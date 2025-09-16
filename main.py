@@ -113,7 +113,7 @@ with open(data_path, 'r', encoding="utf-8") as f:
         else:
             notification.notify(
             title="⏱ Stopwatch",
-            message=f"Stopwathc isn't working",
+            message=f"Stopwatch isn't working",
             timeout=5  # seconds
             )
         sys.exit()
